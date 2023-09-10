@@ -38,31 +38,32 @@ public class PostService {
         // 사용자의 정보 가져오기. request에서 Token가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
-        // 토큰이 있는 경우에만 글 작성 가능
-        if (token != null) {
-            // 토큰 검증
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            }else {
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회 -> 로그인 안했으면 로그인 하라고 메시지
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("로그인 해주세요")
-            );
-
-            //Entity 생성자에 Dto를 매개변수로 사용하고있는데 문제가 생길 수 있나요?
-            Post post = new Post(requestDto, user.getUsername());
-
-            post.setUser(user); // 추가함. 윗줄보다 이렇게 추가하는게 낫다.
-            // user.add(post); // User에서 만든 add메서드를 이렇게 추가해도 된다!!
-            postRepository.save(post);
-            return new PostResponseDto(post);
-        }else {
-            return null;
+        if (token == null) {
+            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        // 토큰이 있는 경우에만 글 작성 가능
+
+        // 토큰 검증
+        if (jwtUtil.validateToken(token)) {
+            // 토큰에서 사용자 정보 가져오기
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new APIException(ExceptionStatus.INVALID_TOKEN);
+        }
+
+        // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회 -> 로그인 안했으면 로그인 하라고 메시지
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("로그인 해주세요")
+        );
+
+        //Entity 생성자에 Dto를 매개변수로 사용하고있는데 문제가 생길 수 있나요?
+        Post post = new Post(requestDto, user.getUsername());
+
+        post.setUser(user); // 추가함. 윗줄보다 이렇게 추가하는게 낫다.
+        // user.add(post); // User에서 만든 add메서드를 이렇게 추가해도 된다!!
+        postRepository.save(post);
+        return new PostResponseDto(post);
+
     }
 
     // 2. 게시글 전체 목록 조회
@@ -108,6 +109,7 @@ public class PostService {
     // 권한이 추가된 수정 순서 : 토큰 확인 -> 토큰 검증 -> 토큰에 userId가 있는지(수정) -> 조회 -> 권한 확인 -> 수정
     @Transactional
     public PostResponseDto update(Long Id, PostRequestDto requestDto, HttpServletRequest request) {
+        System.out.println(Id + " " + requestDto.getTitle() + " " + requestDto.getContent());
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
@@ -122,24 +124,22 @@ public class PostService {
             throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
 
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회 -> 로그인 안했으면 로그인 하라고 메시지
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("로그인 해주세요")
-            );
-            Post post = postRepository.findById(Id).orElseThrow(
-                    () -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다.")
-            );
+        // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회 -> 로그인 안했으면 로그인 하라고 메시지
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("로그인 해주세요")
+        );
+        Post post = postRepository.findById(Id).orElseThrow(
+                () -> new APIException(ExceptionStatus.NOT_FOUND_POST_ID)
+        );
 
-            if(!post.getUsername().equals(user.getUsername())){
-                throw new IllegalArgumentException("해당 게시물에 권한이 존재하지 않습니다.");
-            }
-
-            post.update(requestDto);
-            postRepository.save(post);
-            return new PostResponseDto(post);
-        }else {
-            return null;
+        if (!post.getUsername().equals(user.getUsername())) {
+            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
         }
+
+        post.update(requestDto);
+        postRepository.save(post);
+        return new PostResponseDto(post);
+
     }
 
     // 5. 선택한 게시글 삭제
@@ -166,10 +166,10 @@ public class PostService {
                 () -> new IllegalArgumentException("로그인 해주세요")
         );
 
-            //조회
-            Post post = postRepository.findById(Id).orElseThrow(
-                    () -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다.")
-            );
+        //조회
+        Post post = postRepository.findById(Id).orElseThrow(
+                () -> new APIException(ExceptionStatus.NOT_FOUND_POST_ID)
+        );
 
         //권한 체크? -> 현재 게시물의 게시물 작성자 이름이랑 사용자 이름이랑 같으면 가능
         if (!post.getUsername().equals(user.getUsername())) {
@@ -177,10 +177,9 @@ public class PostService {
         }
 
 
-            //삭제
-            postRepository.deleteById(Id);
-            return new DeleteReponseDto("게시글 삭제 성공",200);
-        }
-        return null;
+        //삭제
+        postRepository.deleteById(Id);
+        return new DeleteReponseDto("게시글 삭제 성공", 200);
+
     }
 }

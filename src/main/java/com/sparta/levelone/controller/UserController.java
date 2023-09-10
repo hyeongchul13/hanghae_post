@@ -33,6 +33,7 @@ public class UserController {
             }
         }
         userService.signup(signupRequestDto);
+
         return new SignupResponseDto("회원가입 성공", 200);
     }
     // 로그인
