@@ -5,6 +5,8 @@ import com.sparta.levelone.dto.LoginRequestDto;
 import com.sparta.levelone.dto.SignupRequestDto;
 import com.sparta.levelone.entity.User;
 import com.sparta.levelone.entity.UserRoleEnum;
+import com.sparta.levelone.exception.APIException;
+import com.sparta.levelone.exception.ExceptionStatus;
 import com.sparta.levelone.jwt.JwtUtil;
 import com.sparta.levelone.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +34,7 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new APIException(ExceptionStatus.DUPICATED_USER);
         }
 
         // 사용자 ROLE 확인 (관리자인 경우, ADMIN / 사옹자인 경우, USER 부여)
@@ -57,11 +59,11 @@ public class UserService {
 
         // 사용자 확인
         User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
+                () -> new APIException(ExceptionStatus.NOT_FOUND_USER)
         );
         // 비밀번호 확인
-        if(!user.getPassword().equals(password)){
-            throw  new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        if (!user.getPassword().equals(password)) {
+            throw new APIException(ExceptionStatus.NOT_FOUND_USER);
         }
         // 토큰을 쿠키에 담아서 보내는 방법과 responses header에 담아서 보내는 방법이 있는데, 여기선 response header에 담아서 보냄
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));

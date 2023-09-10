@@ -13,4 +13,8 @@ public class LoginResponseDto {
         this.msg = msg;
         this.statusCode = statusCode;
     }
+
+    public LoginResponseDto(String defaultMessage) {
+        this.msg = defaultMessage;
+    }
 }

@@ -36,6 +36,7 @@ public class JwtUtil {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
+
     // header 토큰을 가져오기
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
@@ -44,6 +45,7 @@ public class JwtUtil {
         }
         return null;
     }
+
     // 토큰 생성
     public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
@@ -56,6 +58,7 @@ public class JwtUtil {
                         .signWith(key, signatureAlgorithm)
                         .compact();
     }
+
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
@@ -69,8 +72,10 @@ public class JwtUtil {
             log.info("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
-        } return false;
+        }
+        return false;
     }
+
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
