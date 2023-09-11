@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<ExceptionResponseDto> illegalArgumentExceptionHandler(
-            IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(new ExceptionResponseDto(e.getMessage(), 400));
-    }
+//    @ExceptionHandler({IllegalArgumentException.class})
+//    public ResponseEntity<ExceptionResponseDto> illegalArgumentExceptionHandler(
+//            IllegalArgumentException e) {
+//        return ResponseEntity.badRequest().body(new ExceptionResponseDto(e.getMessage(), 400));
+//    }
 
     @ExceptionHandler({APIException.class})
     public ResponseEntity<ExceptionResponseDto> APIExceptionHandler(
