@@ -11,6 +11,7 @@ import com.sparta.levelone.jwt.JwtUtil;
 import com.sparta.levelone.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     // 관리자 회원 가입 인가 방법  -- ADMIN_TOKEN 선언
@@ -29,7 +31,7 @@ public class UserService {
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
-        String password = signupRequestDto.getPassword();
+        String password = passwordEncoder.encode(signupRequestDto.getPassword());
 
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
@@ -55,7 +57,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public void login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String username = loginRequestDto.getUsername();
-        String password = loginRequestDto.getPassword();
+        String password = passwordEncoder.encode(loginRequestDto.getPassword());
 
         // 사용자 확인
         User user = userRepository.findByUsername(username).orElseThrow(

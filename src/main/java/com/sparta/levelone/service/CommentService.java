@@ -31,7 +31,7 @@ public class CommentService {
     @Transactional
     public CommentResponseDto createcomment(Long postId, CommentRequestDto requestDto, HttpServletRequest request) {
         // 사용자 정보 가져오기. request에 token 가져오기
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
         // 토큰이 있는 경우에만 글 작성 가능
         // 토큰 검증
@@ -61,7 +61,7 @@ public class CommentService {
     // 2. 댓글 수정
     @Transactional
     public CommentResponseDto updatecomment(Long Id, CommentRequestDto requestDto, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
 
         // 토큰 검증
@@ -91,7 +91,7 @@ public class CommentService {
     // 3. 댓글 삭제
     @Transactional
     public CommentDeleteDto deletecomment(Long Id, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
 
         //토큰 확인

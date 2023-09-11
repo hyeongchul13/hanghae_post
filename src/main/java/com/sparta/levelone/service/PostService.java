@@ -37,7 +37,7 @@ public class PostService {
     @Transactional
     public PostResponseDto createPost(PostRequestDto requestDto, HttpServletRequest request) {
         // 사용자의 정보 가져오기. request에서 Token가져오기
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
         // 토큰 검증
         if (jwtUtil.validateToken(token)) {
@@ -66,7 +66,7 @@ public class PostService {
     @Transactional
     public List<PostResponseDto> getPostList() {
         List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc(); //List<Post> 내림차순으로 가져오기
-        if(Collections.isEmpty(postList)) return null;
+        if (Collections.isEmpty(postList)) return null;
         List<PostResponseDto> responseDto = new ArrayList<>();  // List<PostResponseDto> 빈통 만들기
 
         for (Post post : postList) {
@@ -107,7 +107,7 @@ public class PostService {
     @Transactional
     public PostResponseDto update(Long Id, PostRequestDto requestDto, HttpServletRequest request) {
         System.out.println(Id + " " + requestDto.getTitle() + " " + requestDto.getContent());
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
 
         // 토큰 검증
@@ -140,7 +140,7 @@ public class PostService {
     // 권한이 추가된 삭제 순서 : 토큰 확인 -> 토큰 검증 -> 토큰에 userId가 있는지 -> 조회 -> 권한 체크/post에 권한이 있는지(??) -> 삭제
     @Transactional
     public DeleteReponseDto delete(Long Id, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
         // 토큰 검증
         if (jwtUtil.validateToken(token)) {

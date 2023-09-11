@@ -36,10 +36,11 @@ public class UserController {
 
         return new SignupResponseDto("회원가입 성공", 200);
     }
+
     // 로그인
     @ResponseBody
     @PostMapping("/login")
-    public LoginResponseDto login(@RequestBody @Valid LoginRequestDto loginRequestDto,BindingResult bindingResult,HttpServletResponse response) {
+    public LoginResponseDto login(@RequestBody @Valid LoginRequestDto loginRequestDto, BindingResult bindingResult, HttpServletResponse response) {
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
