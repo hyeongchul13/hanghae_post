@@ -53,9 +53,8 @@ public class CommentService {
             comment.setPostsAndUsers(post, user);
             commentRepository.save(comment);
             return new CommentResponseDto(comment);
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 
     // 2. 댓글 수정
@@ -83,9 +82,8 @@ public class CommentService {
 
             comment.update(requestDto);
             return new CommentResponseDto(comment);
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 
     // 3. 댓글 삭제
@@ -118,8 +116,7 @@ public class CommentService {
             //삭제
             commentRepository.deleteById(Id);
             return new CommentDeleteDto("댓글 삭제 성공", 400);
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 }

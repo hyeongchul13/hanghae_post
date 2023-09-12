@@ -56,9 +56,9 @@ public class PostService {
             // user.add(post); // User에서 만든 add메서드를 이렇게 추가해도 된다!!
             postRepository.save(post);
             return new PostResponseDto(post);
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
+
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 
 
@@ -130,9 +130,8 @@ public class PostService {
             post.update(requestDto);
             postRepository.save(post);
             return new PostResponseDto(post);
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 
     // 5. 선택한 게시글 삭제
@@ -168,8 +167,7 @@ public class PostService {
             postRepository.deleteById(Id);
             return new DeleteReponseDto("게시글 삭제 성공", 200);
 
-        } else {
-            throw new APIException(ExceptionStatus.INVALID_TOKEN);
         }
+        throw new APIException(ExceptionStatus.INVALID_TOKEN);
     }
 }
